@@ -30,20 +30,26 @@ productsLocks = {} // dictionary with key = product, value = lock, one lock for 
 for product in products
   productsLocks[product] = Lock()
 
-threadsLocks = {} // dictionary with key = threadId, value = lock, one lock for each thread
-for threadId in 1:threadsNum:
-  productsLocks[threadId] = Lock()
- 
 moneyLock = Lock()
 billsLock = Lock()
-  
+
+inventoryStarted = false
+inventoryLock = Lock()
+
 // define thread function
 function threadFunction(threadId)
 {
   while (true)
   {
-    threadsLocks[threadId].lock() // while the main thread will do its job, it will block here
-
+    bool inventoryStartedStatus
+    inventoryLock.lock()
+    inventoryStartedStatus = inventoryStarted
+    inventoryLock.unlock()
+    
+    // while the main thread will do its job, it will finish here
+    if inventoryStartedStatus
+      continue
+      
     bill = generateRandomSale()
 
     for product : bill.products
@@ -61,8 +67,8 @@ function threadFunction(threadId)
     moneyLock.lock() // this might not be necessary if += is an atomic operation
     money += bill.total
     moneyLock.unlock()
-
-    threadsLocks[threadId].unlock()
+    
+    semaphore.V()
   }
 }
 
@@ -72,15 +78,21 @@ function mainThreadFunction()
   {
     // wait a while between inventories
     wait(random(100))
-
-    // wanna make sure that mainThread will perform its periodical inventory only after each thread cleared its current transaction
+    
+    inventoryLock.lock()
+    inventoryStarted = true
+    semaphore = Semaphore() // instantiate a new semaphore
+    inventoryLock.unlock()
+        
+    // wanna make sure that mainThread will perform its periodical inventory only after each thread cleared its current transaction -- aka the semaphore was incremented by all threads
     for threadId in 1:threadsNum
-      threadsLocks[threadId].lock()
+      semaphore.P()
 
     runInventory() // no sync mechanisms required in here; only the main thread will run at this point
-
-    for threadId in 1:threadsNum
-      threadsLocks[threadId].lock() // set all threads free
+    
+    inventoryLock.lock()
+    inventoryStarted = false
+    inventoryLock.unlock()
   }
 }
 
