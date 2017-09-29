@@ -26,38 +26,62 @@ money    = 0
 readInitalInventory(products)
 
 // initialize sync mechanisms
-productsLocks = {} // dictionary with key = product, value = lock, one lock for each sold product
+productsLocks = {} // dictionary with key = product, value = lock, one lock for each product
 for product in products
   productsLocks[product] = Lock()
+
+threadsLocks = {} // dictionary with key = threadId, value = lock, one lock for each thread
+for threadId in 1:threadsNum:
+  productsLocks[threadId] = Lock()
+ 
 moneyLock = Lock()
 billsLock = Lock()
   
 // define thread function
-function threadFunction()
+function threadFunction(threadId)
 {
-  bill = generateRandomSale()
-  
-  for product : bill.products
+  while (true)
   {
-    lock = productsLocks[product]
-    lock.lock()   // get ownership
-    registerSell(product)
-    lock.unlock() // release ownership
+    threadsLocks[threadId].lock() // while the main thread will do its job, it will block here
+
+    bill = generateRandomSale()
+
+    for product : bill.products
+    {
+      lock = productsLocks[product]
+      lock.lock()   // get ownership
+      registerSell(product)
+      lock.unlock() // release ownership
+    }
+
+    billsLock.lock() // this might not be necessary if push_back is an atomic operation
+    bills.push_back(bill)
+    billsLock.unlock()
+
+    moneyLock.lock() // this might not be necessary if += is an atomic operation
+    money += bill.total
+    moneyLock.unlock()
+
+    threadsLocks[threadId].unlock()
   }
-  
-  billsLock.lock() // this might not be necessary if push_back is an atomic operation
-  bills.push_back(bill)
-  billsLock.unlock()
-  
-  moneyLock.lock() // this might not be necessary if += is an atomic operation
-  money += bill.total
-  moneyLock.unlock()
 }
 
 function mainThreadFunction()
 {
-  // wanna make sure that mainThread will perform its periodical inventory only after each thread cleared its current transaction
-  
+  while (true)
+  {
+    // wait a while between inventories
+    wait(random(100))
+
+    // wanna make sure that mainThread will perform its periodical inventory only after each thread cleared its current transaction
+    for threadId in 1:threadsNum
+      threadsLocks[threadId].lock()
+
+    runInventory() // no sync mechanisms required in here; only the main thread will run at this point
+
+    for threadId in 1:threadsNum
+      threadsLocks[threadId].lock() // set all threads free
+  }
 }
 
 // create thread pool
