@@ -60,11 +60,11 @@ function threadFunction()
       lock.unlock() // release ownership
     }
 
-    billsLock.lock() // this might not be necessary if push_back is an atomic operation
+    billsLock.lock() // this might not be necessary if push_back is a sync operation
     bills.push_back(bill)
     billsLock.unlock()
 
-    moneyLock.lock() // this might not be necessary if += is an atomic operation
+    moneyLock.lock() // this might not be necessary if += is a sync operation
     money += bill.total
     moneyLock.unlock()
     
