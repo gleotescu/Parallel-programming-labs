@@ -15,6 +15,7 @@
 Product := struct (price : Number, quantity : Number)
 Bill    := struct (total : Number, products : vector<Product>)
 
+
 // implementation   
 
 threadsNum = 100
@@ -24,6 +25,7 @@ products = vector <Product> ()
 bills    = vector <Bill> ()
 money    = 0
 readInitalInventory(products)
+
 
 // initialize sync mechanisms
 productsLocks = {} // dictionary with key = product, value = lock, one lock for each product
@@ -35,6 +37,9 @@ billsLock = Lock()
 
 inventoryStarted = false
 inventoryLock = Lock()
+
+semaphore = Semaphore()
+
 
 // define thread function
 function threadFunction()
