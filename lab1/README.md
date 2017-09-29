@@ -37,7 +37,7 @@ inventoryStarted = false
 inventoryLock = Lock()
 
 // define thread function
-function threadFunction(threadId)
+function threadFunction()
 {
   while (true)
   {
