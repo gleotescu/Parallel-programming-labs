@@ -10,11 +10,12 @@
 
 ## Problem 1 - supermarket inventory
 
+'''
 // types definitions
 Product := struct (price : Number, quantity : Number)
 Bill    := struct (total : Number, items : vector<Product>)
 
-// ### implementation   
+// implementation   
 
 // initialize 
 products = vector <Product> () 
@@ -29,3 +30,4 @@ def runFunction()
 
 // create thread pool
 threads = ThredPool(nr, runFunction) 
+'''
