@@ -41,7 +41,7 @@ inventoryLock = Lock()
 semaphore = Semaphore()
 
 
-// define thread function
+// thread function
 function threadFunction()
 {
   while (true)
@@ -77,6 +77,7 @@ function threadFunction()
   }
 }
 
+// main thread function
 function mainThreadFunction()
 {
   while (true)
