@@ -1,8 +1,8 @@
 
 ## Theory
 
-### Mutex
+  - ### Mutex
 
-### Semaphore
+  - ### Semaphore
 
 ## Problem 1 - supermarket inventory
