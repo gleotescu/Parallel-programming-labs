@@ -45,14 +45,9 @@ semaphore = Semaphore()
 function threadFunction()
 {
   while (true)
-  {
-    bool inventoryStartedStatus
-    inventoryLock.lock()
-    inventoryStartedStatus = inventoryStarted
-    inventoryLock.unlock()
-    
+  { 
     // while the main thread will do its job, it will finish here
-    if inventoryStartedStatus
+    if inventoryStartedStatus // read is in atomic operation - no need for a lock here
       continue
       
     bill = generateRandomSale()
@@ -85,11 +80,10 @@ function mainThreadFunction()
     // wait a while between inventories
     wait(random(100))
     
-    inventoryLock.lock()
-    inventoryStarted = true
+    inventoryStarted = true // even tough write is not an atomic operation, there is no need for a lock; only the main thread writes into the "inventoryStarted" variable
+    
     semaphore = Semaphore() // instantiate a new semaphore
-    inventoryLock.unlock()
-        
+
     // wanna make sure that mainThread will perform its periodical inventory only after each thread cleared its current transaction -- aka the semaphore was incremented by all threads
     for threadId in 1:threadsNum
       semaphore.P()
