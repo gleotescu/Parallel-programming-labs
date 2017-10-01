@@ -1,0 +1,11 @@
+10
+mere 3 100
+pere 4 50
+cartofi 2 200
+vinete 5 30
+dovlecel 2.5 20
+ardei 3.4 40
+telemea 25 35
+vita 30 20
+pui 25 15
+porc 30 20
