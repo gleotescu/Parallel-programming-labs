@@ -1,5 +1,6 @@
-### Compile: g++ -std=c++11 supermarket.cpp -o supermarket -lpthread
-### Run: ./supermarket
+### How to run:
+  - Compile: g++ -std=c++11 supermarket.cpp -o supermarket -lpthread
+  - Run: ./supermarket
 
 
 ## Theory
